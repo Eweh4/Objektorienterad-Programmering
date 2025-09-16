@@ -5,6 +5,8 @@ public class Main {
         RatNum tester = new RatNum(10,8);
         System.out.printf(tester.toString());
 
-
+        String strng = "a/2" ;
+        RatNum parsedNum = new RatNum(strng);
+        System.out.println(strng.toString());
         }
 }
