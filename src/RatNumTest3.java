@@ -138,7 +138,7 @@ class RatNumTest3 {
                 }
             }
             catch (NumberFormatException e) {
-                return("NumberFormatException in test 3");
+                return("NumberFormatException");
             }
         }
         return ("Okänt fel");

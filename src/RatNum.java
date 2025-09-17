@@ -75,18 +75,18 @@ public class RatNum {
      */
     static RatNum parse(String s) {
 
-        String[] myArray;
+        String[] a;
         if (s.contains("/")) {
             //s.split("/");
             String regex = "/";
-            myArray = s.split(regex);
-
-            RatNum ParseNum = new RatNum(Integer.parseInt(myArray[0]), Integer.parseInt(myArray[1]));
-            return ParseNum;
+            a = s.split(regex);
+            if (a.length == 1){
+                throw  new NumberFormatException();
+            }
+            return new RatNum(Integer.parseInt(a[0]), Integer.parseInt(a[1]));
         }
         else {
-            RatNum ParseNum = new RatNum(Integer.parseInt(s));
-            return ParseNum;
+            return new RatNum(Integer.parseInt(s));
         }
     }
 
@@ -102,6 +102,11 @@ public class RatNum {
         return this.num == p.num && this.denom == p.denom;
     }
 
+    /**
+     * Checks if this RatNum is less RatNum r
+     * @param r - the RatNum being compared to this one
+     * @return True if RatNum r is greater than this one, otherwise returns false
+     */
     public boolean lessThan(RatNum r){
         if(Math.multiplyExact(this.num,r.denom)<Math.multiplyExact(r.num,this.denom))
         {return true;}
@@ -195,6 +200,7 @@ public class RatNum {
     public RatNum(RatNum r){
         num = r.getNumerator();
         denom = r.getDenominator();
+
     }
 
     /**
@@ -203,7 +209,8 @@ public class RatNum {
      * @throws NumberFormatException - if the string does not contain a parsable rational number
      */
     public RatNum(String s){
-        new RatNum(RatNum.parse(s));
+         num = RatNum.parse(s).getNumerator();
+         denom = RatNum.parse(s).getDenominator();
     }
 
 }
