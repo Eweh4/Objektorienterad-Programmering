@@ -1,4 +1,6 @@
 import java.lang.Math;
+import java.math.BigInteger;
+
 /**
  * A RatNum specifies a Rational number in the form numerator/denominator
  * @author Edvin Hågård
@@ -8,19 +10,20 @@ public class RatNum {
     /**
      Numerator - Täljare
      */
-    private int num;
+    private BigInteger num;
     /**
      Denominator - Nämnare
      */
-    private int denom;
+    private BigInteger denom;
 
     //Methods
+    /*
     /**
      *Returns the Greatest Common Divisor of two elements
      * @param m element 1
      * @param n element 2
      */
-    static int gcd(int m, int n){
+    /* static int gcd(int m, int n){
 
         if(m == 0 && n == 0){
             throw new IllegalArgumentException();
@@ -48,17 +51,21 @@ public class RatNum {
         }
         return 1;
     }
+
+     */
     /**
      *  Returns the numerator of this Ratnum
+     * @return Returns numerator as an int
      */
     public int getNumerator(){
-        return this.num;
+        return this.num.intValue();
     }
     /**
      * Returns the denominator of this RatNum
+     * @return Returns denominator as an int
      */
     public int getDenominator(){
-        return this.denom;
+        return this.denom.intValue();
     }
     /**
      * Converts RatNum object as a string
@@ -99,7 +106,7 @@ public class RatNum {
         if(r == null) { return false;}
         if(r.getClass() != this.getClass()){ return false;}
         RatNum p = (RatNum) r;
-        return this.num == p.num && this.denom == p.denom;
+        return this.num.equals(p.num) && this.denom.equals(p.denom);
     }
 
     /**
@@ -108,9 +115,7 @@ public class RatNum {
      * @return True if RatNum r is greater than this one, otherwise returns false
      */
     public boolean lessThan(RatNum r){
-        if(Math.multiplyExact(this.num,r.denom)<Math.multiplyExact(r.num,this.denom))
-        {return true;}
-        else{return false;}
+        return (this.num.multiply(r.denom)).compareTo(r.num.multiply(this.denom)) < 0;
     }
 
     /**
@@ -119,8 +124,8 @@ public class RatNum {
      * @return the summation of the two RatNum.
      */
     public RatNum add(RatNum r){
-        int a = Math.multiplyExact(this.num,r.denom)+Math.multiplyExact(r.num,this.denom);
-        int b = Math.multiplyExact(this.denom,r.denom);
+        BigInteger a = (this.num.multiply(r.denom)).add(r.num.multiply(this.denom));
+        BigInteger b = this.denom.multiply(r.denom);
         return new RatNum(a, b);
     }
 
@@ -130,7 +135,9 @@ public class RatNum {
      * @return the difference.
      */
     public RatNum sub(RatNum r){
-        return new RatNum(  Math.multiplyExact(this.num,r.denom) - Math.multiplyExact(r.num,this.denom), Math.multiplyExact(this.denom,r.denom));
+        BigInteger a = this.num.multiply(r.denom).subtract(r.num.multiply(this.denom));
+        BigInteger b = this.denom.multiply(r.denom);
+        return new RatNum(a, b);
     }
 
     /**
@@ -139,7 +146,9 @@ public class RatNum {
      * @return the product.
      */
     public RatNum mul(RatNum r){
-        return new RatNum(Math.multiplyExact(this.num,r.num),Math.multiplyExact(this.denom,r.denom));
+        BigInteger a = this.num.multiply(r.num);
+        BigInteger b = this.denom.multiply(r.denom);
+        return new RatNum(a,b);
     }
 
     /**
@@ -148,7 +157,32 @@ public class RatNum {
      * @return a rational number
      */
     public RatNum div(RatNum r){
-        return new RatNum(Math.multiplyExact(this.num,r.denom), Math.multiplyExact(this.denom,r.num));
+        BigInteger a = this.num.multiply(r.denom);
+        BigInteger b = this.denom.multiply(r.num);
+        return new RatNum(a,b);
+    }
+
+    /**
+     * Multiplies a RatNum a number of times equal to the exponent
+     * @param k - the exponent
+     * @return a RatNum
+     */
+    public RatNum pow(int k) {
+        if(k<0){
+            throw new NumberFormatException();
+        }
+        if(k == 0){
+            return new RatNum(1,1);
+        }
+
+        BigInteger num = this.num;
+        BigInteger denom = this.denom;
+
+        for (int i = 0; i < k-1; i++) {
+            num = this.num.multiply(num);
+            denom = this.num.multiply(denom);
+        }
+        return new RatNum(num,denom);
     }
 
     /**
@@ -156,7 +190,7 @@ public class RatNum {
      * @return a string representation of an integer
      */
     public String toIntString(){
-        Integer a = this.num/this.denom;
+        Integer a = this.num.intValue()/this.denom.intValue();
         return String.valueOf(a);
     }
 
@@ -165,16 +199,17 @@ public class RatNum {
      * Constructs a new RatNum whose specified as 0/1
      */
     public RatNum(){
-        num = 0;
-        denom = 1;
+        this(BigInteger.valueOf(0),
+             BigInteger.valueOf(1));
     }
     /**
      * Constructs a new RatNum whose specified as a/1
      * @param a the specified numerator
     */
     public RatNum(int a){
-        num = a;
-        denom = 1;
+        this(BigInteger.valueOf(a),
+             BigInteger.valueOf(1));
+
     }
     /**
      * Constructs a new RatNum whose specified as a/b
@@ -182,36 +217,39 @@ public class RatNum {
      * @param b the specified denominator
      */
     public RatNum(int a, int b){
-        if(b == 0){
-            throw new NumberFormatException("Denominator = 0");
-        }
-        else if(b < 0){
-            num = -a/gcd(a,b);
-            denom = -b/gcd(a,b);
-        }else {
-            num = a/gcd(a,b);
-            denom = b/gcd(a,b);
-        }
+        this(BigInteger.valueOf(a),
+             BigInteger.valueOf(b));
     }
     /**
      * Constructs a new RatNum, initialized to match the values of the specified RatNum
      * @param r the RatNum from which to copy initial values to a newly constructed RatNum
     */
     public RatNum(RatNum r){
-        num = r.getNumerator();
-        denom = r.getDenominator();
+        num = BigInteger.valueOf(r.getNumerator());
+        denom = BigInteger.valueOf(r.getDenominator());
+
 
     }
-
     /**
      * Constructs a new RatNum from a string
      * @param s is a string with the form of "a/b", where a and b are both integers
      * @throws NumberFormatException - if the string does not contain a parsable rational number
      */
     public RatNum(String s){
-         num = RatNum.parse(s).getNumerator();
-         denom = RatNum.parse(s).getDenominator();
+         num = RatNum.parse(s).num;
+         denom = RatNum.parse(s).denom;
     }
 
+    private RatNum(BigInteger a,BigInteger b){
+        if(b.compareTo(BigInteger.valueOf(0)) == 0){
+            throw new NumberFormatException("Denomintor = 0");
+        }else if(b.compareTo(BigInteger.valueOf(0)) < 0){
+            num = (a.negate()).divide(a.gcd(b));
+            denom = (b.negate()).divide(a.gcd(b));
+        }else {
+            num = a.divide(a.gcd(b));
+            denom = b.divide(a.gcd(b));
+        }
+    }
 }
 
